@@ -1,10 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-
 const authRoutes = require('./routes/auth');
 const publicRoutes = require('./routes/public');
 const privateRoutes = require('./routes/private');
+const productRoutes = require('./routes/products');
+const daysRouter = require('./routes/days');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./swagger.yaml'); 
+
+
+
 
 const app = express();
 
@@ -14,10 +21,12 @@ app.use(cors({
   }));
 app.use(morgan('dev'));
 app.use(express.json());
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/auth', authRoutes);
 app.use('/api', publicRoutes);
 app.use('/api/private', privateRoutes); 
+app.use('/products', productRoutes);
+app.use('/day', daysRouter); 
 
 module.exports = app;

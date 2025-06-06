@@ -1,15 +1,20 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const daySchema = new mongoose.Schema({
-  date: String,
-  user: mongoose.Schema.Types.ObjectId,
-  consumedProducts: [
-    {
-      product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-      weight: Number,
-      kcal: Number
-    }
-  ]
+const consumedProductSchema = new Schema({
+  product: {
+    type: Schema.Types.ObjectId,
+    ref: 'Product',
+  },
+  weight: Number,
 });
 
-module.exports = mongoose.model('Day', daySchema);
+const daySchema = new Schema({
+  date: String,
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  consumedProducts: [consumedProductSchema],
+});
+
+module.exports = model('Day', daySchema);
