@@ -13,9 +13,10 @@ router.get('/:date', authenticate, async (req, res) => {
       if (!day) return res.json({ consumedProducts: [], totalKcal: 0 });
   
       const totalKcal = day.consumedProducts.reduce((total, item) => {
-        const kcalPer100g = item.product.kcal;
-        return total + (item.weight / 100) * kcalPer100g;
+        if (!item.product || typeof item.product.kcal !== 'number' || typeof item.weight !== 'number') return total;
+        return total + (item.weight / 100) * item.product.kcal;
       }, 0);
+      
   
       res.json({
         consumedProducts: day.consumedProducts,
@@ -67,5 +68,5 @@ router.get('/:date', authenticate, async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   module.exports = router;  
