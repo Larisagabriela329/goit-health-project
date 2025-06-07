@@ -2,7 +2,7 @@
   "name": "react-homework-template",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://larisagabriela329.github.io/goit-project-health",
+  "homepage": "https://larisagabriela329.github.io/goit-health-project",
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.3",
