@@ -20,8 +20,6 @@ import { StyledWrapper } from './Navigation.styled';
 function Navigation() {
   const isUserLogin = useSelector(getIsLoggedIn);
 
-  console.log('isUserLogin:', isUserLogin);
-
   return (
     <StyledDiv>
       <nav>

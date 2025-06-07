@@ -61,13 +61,12 @@ function CalculatorCalorieForm() {
       bloodType: Number(values.bloodType),
     };
 
-    console.log('🔍 Form values:', values);
-    console.log('📦 Body to send:', body);
+  
 
     dispatch(dailyRate(body))
       .unwrap()
       .then((res) => {
-        console.log('✅ API Response:', res);
+       
         if (userData) {
           dispatch(getUser());
         }

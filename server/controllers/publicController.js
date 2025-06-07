@@ -13,7 +13,6 @@ const calculateCalories = ({ currentWeight, height, age, desiredWeight }) => {
 exports.calculateCaloriesAndProducts = async (req, res) => {
   const { currentWeight, height, age, desiredWeight, bloodType } = req.body;
 
-  console.log('🩸 Received:', req.body);
 
   if (![1, 2, 3, 4].includes(bloodType)) {
     return res.status(400).json({ message: 'Invalid blood type' });
@@ -29,8 +28,6 @@ exports.calculateCaloriesAndProducts = async (req, res) => {
   }
 
   const dailyCalories = calculateCalories({ currentWeight, height, age, desiredWeight });
-
-  console.log('🔥 Calculated calories:', dailyCalories);
 
   const allProducts = await Product.find();
   const notAllowedProducts = allProducts.filter(

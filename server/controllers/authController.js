@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Session = require('../models/Session');
 const { generateTokens, verifyRefreshToken } = require('../services/tokenService');
+const DailyRate = require('../models/DailyRate');
 
 exports.register = async (req, res) => {
   const { email, password, username } = req.body;
@@ -59,5 +60,29 @@ exports.refresh = async (req, res) => {
     res.json(tokens);
   } catch (err) {
     res.status(403).json({ message: 'Token invalid or expired' });
+  }
+};
+
+
+exports.getCurrentUser = async (req, res) => {
+  try {
+    // Use req.user directly (it is already the user doc!)
+    const user = req.user;
+
+    // Get dailyRate and notAllowedProducts as before
+    const dailyRateDoc = await DailyRate.findOne({ user: user._id });
+    const dailyRate = dailyRateDoc ? dailyRateDoc.kcal : 0;
+    const notAllowedProducts = dailyRateDoc ? dailyRateDoc.notAllowedProducts : [];
+
+    res.json({
+      email: user.email,
+      username: user.username,
+      userData: {
+        dailyRate,
+        notAllowedProducts,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
   }
 };
