@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { deleteProduct, dayInfo } from './day-operations';
+import { deleteProduct, dayInfo, postProduct } from './day-operations';
 
 const initialState = {
   id: null,
@@ -18,16 +18,22 @@ export const daySlice = createSlice({
   initialState,
   extraReducers: builder => {
     builder
-      .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.daySummary = action.payload.daySummary;
-        state.eatenProducts = action.payload.eatenProducts;
-      })
-      .addCase(dayInfo.fulfilled, (state, action) => {
-        state.id = action.payload.id;
-        state.eatenProducts = action.payload.eatenProducts;
-        state.date = action.payload.date;
-        state.daySummary = action.payload.daySummary;
-      });
+    .addCase(postProduct.fulfilled, (state, action) => {
+      state.id = action.payload.id;
+      state.eatenProducts = action.payload.eatenProducts;
+      state.date = action.payload.date;
+      state.daySummary = action.payload.daySummary;
+    })
+    .addCase(deleteProduct.fulfilled, (state, action) => {
+      state.daySummary = action.payload.daySummary;
+      state.eatenProducts = action.payload.eatenProducts;
+    })
+    .addCase(dayInfo.fulfilled, (state, action) => {
+      state.id = action.payload.id;
+      state.eatenProducts = action.payload.eatenProducts;
+      state.date = action.payload.date;
+      state.daySummary = action.payload.daySummary;
+    });    
   },
 });
 

@@ -23,9 +23,9 @@ export const ThemeSwitching = ({ children }) => {
   const HandleThemeChoose = () => {
     return selectedTheme === 'dark' ? dark : light;
   };
-  return <ThemeProvider theme={HandleThemeChoose}>{children}</ThemeProvider>;
+  return <ThemeProvider theme={HandleThemeChoose()}>{children}</ThemeProvider>;
 };
 
 ThemeSwitching.propTypes = {
-  children: PropTypes.element.isRequired,
+  children: PropTypes.node.isRequired,
 };

@@ -17,7 +17,8 @@ function DiaryProductListItem({ valueDate }) {
 
     const body = {
       dayId,
-      eatenProductId,
+      productId: eatenProductId, // use productId, not eatenProductId (see thunk)
+      date: valueDate,
     };
 
     setDeletedObjects([...deletedObjects, index]);
@@ -31,23 +32,26 @@ function DiaryProductListItem({ valueDate }) {
       });
   };
 
-  if (!eatenProducts) {
+  if (!eatenProducts || eatenProducts.length === 0) {
     return null;
   }
 
   return (
     <>
       {eatenProducts.map((eaten, index) => (
-        <css.ListItem key={eaten.id}>
-          <css.PName>{eaten.title}</css.PName>{' '}
+        <css.ListItem key={eaten._id || eaten.id}>
+          <css.PName>{eaten.product?.title || '-'}</css.PName>
           <css.PGrame>
             {eaten.weight} <css.Kcal>grams</css.Kcal>
-          </css.PGrame>{' '}
+          </css.PGrame>
           <css.PKcal>
-            {eaten.kcal.toFixed(0)} <css.Kcal>kcal</css.Kcal>
-          </css.PKcal>{' '}
+            {/* Calculate kcal for given weight and add null checks */}
+            {eaten.product && typeof eaten.product.kcal === 'number'
+              ? ((eaten.weight / 100) * eaten.product.kcal).toFixed(0)
+              : '-'} <css.Kcal>kcal</css.Kcal>
+          </css.PKcal>
           <css.Button
-            onClick={() => handleDeleteFood(eaten.id, index)}
+            onClick={() => handleDeleteFood(eaten._id || eaten.id, index)}
             type="button"
           >
             <css.Close />

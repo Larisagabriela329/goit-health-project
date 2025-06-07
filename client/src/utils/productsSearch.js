@@ -1,12 +1,11 @@
-import { instance } from 'config';
+import { instance } from '../config';
 
-async function productSearch(query) {
+export default async function productSearch(query) {
   try {
-    const products = await instance.get(`/products?search=${query}`);
-    return products.data;
+    const { data } = await instance.get(`/api/products?search=${query}`);
+    return data; 
   } catch (error) {
-    console.error(error.message);
+    console.error('🔴 productSearch error:', error);
+    return [];
   }
 }
-
-export default productSearch;

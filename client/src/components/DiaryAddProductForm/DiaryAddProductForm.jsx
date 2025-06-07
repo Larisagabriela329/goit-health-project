@@ -101,10 +101,10 @@ function DiaryAddProductForm({ valueDate, openMobileForm, isModalOpen }) {
     dispatch(toggleModal(false));
     // setOpenMobileForm(false);
   };
-
+  
   const handleProductNameChange = e => {
     const query = e.target.value;
-
+    console.log('🔍 Running product search for:', query);
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -113,6 +113,7 @@ function DiaryAddProductForm({ valueDate, openMobileForm, isModalOpen }) {
 
     if (query === '') {
       setSuggestedProducts([]);
+      
       return;
     }
 
@@ -123,10 +124,11 @@ function DiaryAddProductForm({ valueDate, openMobileForm, isModalOpen }) {
   };
 
   const handleProductSelect = product => {
-    setProductName(product.title.ua);
+    setProductName(product.title); 
     setIdProduct(product._id);
     setSuggestedProducts([]);
   };
+  
 
   const handleGramsChange = e => {
     const value = e.target.value;
@@ -153,14 +155,14 @@ function DiaryAddProductForm({ valueDate, openMobileForm, isModalOpen }) {
             />
             {suggestedProducts && suggestedProducts.length > 0 && (
               <css.SuggestionsList ref={suggestionsListRef}>
-                {suggestedProducts.map(product => (
-                  <css.SuggestionItem
-                    key={product._id}
-                    onClick={() => handleProductSelect(product)}
-                  >
-                    {product.title.ua}
-                  </css.SuggestionItem>
-                ))}
+               {suggestedProducts.map(product => (
+  <css.SuggestionItem
+    key={product._id}
+    onClick={() => handleProductSelect(product)}
+  >
+    {product.title}
+  </css.SuggestionItem>
+))}
               </css.SuggestionsList>
             )}
             <css.InputGrams
@@ -194,7 +196,7 @@ function DiaryAddProductForm({ valueDate, openMobileForm, isModalOpen }) {
                       key={product._id}
                       onClick={() => handleProductSelect(product)}
                     >
-                      {product.title.ua}
+                      {product.title}
                     </css.SuggestionItem>
                   ))}
                 </css.SuggestionsList>

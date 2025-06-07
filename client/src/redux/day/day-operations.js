@@ -6,8 +6,13 @@ export const postProduct = createAsyncThunk(
   async (body, { rejectWithValue }) => {
     try {
       const { date, ...productData } = body;
-      const product = await instance.post(`/day/${date}/consumed`, productData);
-      return product.data;
+      const response = await instance.post(`/api/private/day/${date}/consumed`, productData);
+      return {
+        id: response.data._id,
+        eatenProducts: response.data.consumedProducts,
+        date: response.data.date,
+        daySummary: response.data.daySummary,
+      };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -19,8 +24,13 @@ export const deleteProduct = createAsyncThunk(
   async (body, { rejectWithValue }) => {
     try {
       const { date, productId } = body;
-      const product = await instance.delete(`/day/${date}/consumed/${productId}`);
-      return product.data;
+      const res = await instance.delete(`/api/private/day/${date}/consumed/${productId}`);
+      return {
+        id: null,
+        eatenProducts: res.data.consumedProducts,
+        date,
+        daySummary: res.data.daySummary,
+      };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -31,23 +41,20 @@ export const dayInfo = createAsyncThunk(
   'day/info',
   async (body, { rejectWithValue }) => {
     try {
-      const dayInfo = await instance.get(`/day/${body.date}`);
-      if (dayInfo.data.id) {
-        return dayInfo.data;
-      }
-      const info = {
-        date: body.date,
-        daySummary: {
-          date: body.date,
-          kcalLeft: dayInfo.data.kcalLeft,
-          kcalConsumed: dayInfo.data.kcalConsumed,
-          dailyRate: dayInfo.data.dailyRate,
-          percentsOfDailyRate: dayInfo.data.percentsOfDailyRate,
-        },
-        eatenProducts: [],
+      const res = await instance.get(`/api/private/day/${body.date}`);
+      const data = res.data;
+      return {
         id: null,
+        eatenProducts: data.consumedProducts || [],
+        date: body.date,
+        daySummary: data.daySummary || {
+          date: body.date,
+          kcalLeft: 0,
+          kcalConsumed: 0,
+          dailyRate: 0,
+          percentsOfDailyRate: 0,
+        }
       };
-      return info;
     } catch (error) {
       return rejectWithValue(error.message);
     }

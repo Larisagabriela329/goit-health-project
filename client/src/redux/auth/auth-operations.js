@@ -89,37 +89,42 @@ export const logOut = createAsyncThunk(
 export const refreshUser = createAsyncThunk(
   'auth/refreshUser',
   async (_, thunkAPI) => {
-    // Reading the token from the state via getState()
     const state = thunkAPI.getState();
-    const persistedToken = state.auth.refreshToken;
-    const sid = { sid: state.auth.sid };
-    if (persistedToken === null) {
-      // If there is no token, exit without performing any request
-      return thunkAPI.rejectWithValue('Unable to fetch user');
+    const refreshToken = state.auth.refreshToken;
+
+    if (!refreshToken) {
+      
+      return thunkAPI.rejectWithValue('Unable to refresh user: No refresh token');
     }
 
     try {
-      // If there is a token, add it to the HTTP header and perform the request
-      setToken(persistedToken);
-      const refresh = await instance.post('/api/auth/refresh', sid);
-      setToken(refresh.data.newAccessToken);
-      // const user = await instance.get('/user');
-      // const payload = { refresh, user };
+      
+      const response = await instance.post('/api/auth/refresh', { refreshToken });
+
+      
+      const { accessToken, refreshToken: newRefreshToken } = response.data;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', newRefreshToken);
+
+      setToken(accessToken);
+
+     
+
       return {
-        ...refresh.data,
-        user: {
-          ...refresh.data.user,
-          userData: {
-            ...refresh.data.user.userData,
-            dailyRate: Number(refresh.data.user.userData.dailyCalories) || 0,
-          },
-        },
+        accessToken,
+        refreshToken: newRefreshToken,
+       
       };
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setToken(null);
+      return thunkAPI.rejectWithValue('Session expired, please log in again.');
     }
   }
 );
+
 
 export const getUser = createAsyncThunk('/api/auth/user', async (_, thunkAPI) => {
   const state = thunkAPI.getState();

@@ -13,7 +13,7 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:3002',
+    origin: 'http://localhost:3001',
     credentials: true,
   }));
 app.use(morgan('dev'));

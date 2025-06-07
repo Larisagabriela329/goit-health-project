@@ -41,22 +41,47 @@ exports.getDay = async (req, res) => {
     const userId = req.user._id;
 
     const day = await Day.findOne({ date, owner: userId }).populate('consumedProducts.product');
-    if (!day) return res.json({ consumedProducts: [], totalKcal: 0 });
+    if (!day) {
+      return res.json({
+        consumedProducts: [],
+        daySummary: {
+          date,
+          kcalLeft: 0,
+          kcalConsumed: 0,
+          dailyRate: 0,
+          percentsOfDailyRate: 0,
+        }
+      });
+    }
+
+    // Find user daily rate (optional, if you want to use it)
+    const userRate = await DailyRate.findOne({ user: userId });
+    const dailyRate = userRate ? userRate.kcal : 0;
 
     const totalKcal = day.consumedProducts.reduce((total, item) => {
       if (!item.product || typeof item.product.kcal !== 'number' || typeof item.weight !== 'number') return total;
       return total + (item.weight / 100) * item.product.kcal;
     }, 0);
 
+    const kcalLeft = dailyRate > 0 ? Math.max(dailyRate - totalKcal, 0) : 0;
+    const percentsOfDailyRate = dailyRate > 0 ? Math.round((totalKcal / dailyRate) * 100) : 0;
+
     res.json({
       consumedProducts: day.consumedProducts,
-      totalKcal,
+      daySummary: {
+        date: day.date,
+        kcalLeft,
+        kcalConsumed: Math.round(totalKcal),
+        dailyRate,
+        percentsOfDailyRate,
+      }
     });
   } catch (error) {
     console.error("Error fetching day data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 exports.addConsumedProduct = async (req, res) => {
@@ -73,12 +98,40 @@ exports.addConsumedProduct = async (req, res) => {
     day.consumedProducts.push({ product: productId, weight });
     await day.save();
 
-    res.status(201).json(day);
+    // Populate product details
+    await day.populate('consumedProducts.product');
+
+    // Get daily rate from DB
+    const userRate = await DailyRate.findOne({ user: userId });
+    const dailyRate = userRate ? userRate.kcal : 0;
+
+    // Calculate total kcal
+    const totalKcal = day.consumedProducts.reduce((total, item) => {
+      if (!item.product || typeof item.product.kcal !== 'number' || typeof item.weight !== 'number') return total;
+      return total + (item.weight / 100) * item.product.kcal;
+    }, 0);
+
+    const kcalLeft = dailyRate > 0 ? Math.max(dailyRate - totalKcal, 0) : 0;
+    const percentsOfDailyRate = dailyRate > 0 ? Math.round((totalKcal / dailyRate) * 100) : 0;
+
+    res.status(201).json({
+      _id: day._id,
+      date: day.date,
+      consumedProducts: day.consumedProducts,
+      daySummary: {
+        date: day.date,
+        kcalLeft,
+        kcalConsumed: Math.round(totalKcal),
+        dailyRate,
+        percentsOfDailyRate,
+      }
+    });
   } catch (error) {
     console.error("Error adding consumed product:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 exports.removeConsumedProduct = async (req, res) => {
@@ -94,20 +147,27 @@ exports.removeConsumedProduct = async (req, res) => {
     );
     await day.save();
 
+    // Get daily rate from DB
+    const userRate = await DailyRate.findOne({ user: userId });
+    const dailyRate = userRate ? userRate.kcal : 0;
+
     // Recalculate total kcal
     const totalKcal = day.consumedProducts.reduce((total, item) => {
       if (!item.product || typeof item.product.kcal !== 'number' || typeof item.weight !== 'number') return total;
       return total + (item.weight / 100) * item.product.kcal;
     }, 0);
 
+    const kcalLeft = dailyRate > 0 ? Math.max(dailyRate - totalKcal, 0) : 0;
+    const percentsOfDailyRate = dailyRate > 0 ? Math.round((totalKcal / dailyRate) * 100) : 0;
+
     res.json({
       consumedProducts: day.consumedProducts,
       daySummary: {
         date: day.date,
-        kcalLeft: 0, // You can adjust this if needed
-        kcalConsumed: totalKcal,
-        dailyRate: 0, // Or load this from your DailyRate model
-        percentsOfDailyRate: 0, // same here
+        kcalLeft,
+        kcalConsumed: Math.round(totalKcal),
+        dailyRate,
+        percentsOfDailyRate,
       }
     });
   } catch (error) {
