@@ -1,0 +1,59 @@
+{
+  "name": "react-homework-template",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://larisagabriela329.github.io/goit-project-health",
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.5.1",
+    "@testing-library/jest-dom": "^5.16.3",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2",
+    "axios": "^1.8.1",
+    "formik": "^2.4.6",
+    "i18next-browser-languagedetector": "^7.2.2",
+    "i18next-http-backend": "^2.7.3",
+    "nanoid": "^5.1.3",
+    "prop-types": "^15.8.1",
+    "react": "^18.1.0",
+    "react-calendar": "^4.8.0",
+    "react-dom": "^18.1.0",
+    "react-i18next": "^12.3.1",
+    "react-icons": "^4.12.0",
+    "react-loader-spinner": "^5.4.5",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.3.0",
+    "react-scripts": "5.0.1",
+    "react-toastify": "^9.1.3",
+    "redux-persist": "^6.0.0",
+    "styled-components": "^5.3.11",
+    "web-vitals": "^2.1.3",
+    "yup": "^1.6.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint:js": "eslint src/**/*.{js,jsx}"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
