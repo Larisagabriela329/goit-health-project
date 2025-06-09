@@ -43,6 +43,7 @@ export const dayInfo = createAsyncThunk(
     try {
       const res = await instance.get(`/api/private/day/${body.date}`);
       const data = res.data;
+      console.log("Thunk dayInfo result", data)
       return {
         id: null,
         eatenProducts: data.consumedProducts || [],

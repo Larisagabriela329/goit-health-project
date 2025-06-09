@@ -1,36 +1,32 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as css from './DiaryProductListItem.styled';
-import { dayInfo, deleteProduct } from '../../redux/day/day-operations';
+import { deleteProduct } from '../../redux/day/day-operations';
 
 function DiaryProductListItem({ valueDate }) {
   const eatenProducts = useSelector(state => state.day.eatenProducts);
   const dayId = useSelector(state => state.day.id);
   const dispatch = useDispatch();
-  let selectedDate = useMemo(() => ({ date: valueDate }), [valueDate]);
   const [deletedObjects, setDeletedObjects] = useState([]);
 
-  const handleDeleteFood = (eatenProductId, index) => {
-    if (deletedObjects.includes(index)) {
-      return;
-    }
-
-    const body = {
-      dayId,
-      productId: eatenProductId, // use productId, not eatenProductId (see thunk)
+  const handleDeleteFood = (consumedProductId) => {
+    dispatch(deleteProduct({
+      productId: consumedProductId,
       date: valueDate,
-    };
-
-    setDeletedObjects([...deletedObjects, index]);
-
-    dispatch(deleteProduct(body))
-      .then(() => {
-        dispatch(dayInfo(selectedDate));
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    })).then(() => {
+      // You can log the new value directly from the state
+      setTimeout(() => {
+        // useSelector doesn't update instantly after dispatch, so use a small timeout
+        console.log("New eatenProducts after delete:", 
+          JSON.parse(JSON.stringify(eatenProducts))
+        );
+      }, 300); // Give Redux a moment to update state
+    });
   };
+  
+
+ 
+  
 
   if (!eatenProducts || eatenProducts.length === 0) {
     return null;

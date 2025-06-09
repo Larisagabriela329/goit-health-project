@@ -3,7 +3,6 @@ import * as css from './DiaryDateCalendar.styled.js';
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-// import RightSideBar from 'components/RightSideBar/RightSideBar.jsx';
 import DiaryProductList from 'components/DiaryProductList/DiaryProductList.jsx';
 import { BsCalendarEvent } from 'react-icons/bs';
 import { useWidth } from 'hooks/useWidth.js';

@@ -12,3 +12,4 @@ router.post('/day/:date/consumed', authenticate, privateController.addConsumedPr
 router.delete('/day/:date/consumed/:productId', authenticate, privateController.removeConsumedProduct);
 
 module.exports = router;
+ 

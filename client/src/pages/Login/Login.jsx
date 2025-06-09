@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { logIn } from '../../redux/auth/auth-operations';
+import { logIn, getUser } from '../../redux/auth/auth-operations';
 import { getIsLoggedIn } from '../../redux/auth/auth-selectors';
 import { useEffect } from 'react';
 import {
@@ -50,13 +50,13 @@ const navigate = useNavigate();
     try {
       const action = await dispatch(logIn(values));
   
-      // Check if login failed
       if (logIn.rejected.match(action)) {
         console.warn('Login failed:', action.payload);
         return;
       }
   
-      // If successful, reset the form
+      await dispatch(getUser());
+  
       resetForm();
     } catch (error) {
       console.error('Unexpected error during login:', error.message);

@@ -24,23 +24,25 @@ exports.saveDailyRate = async (req, res) => {
       kcal,
       notAllowedProducts: notAllowed,
     });
-
+    console.log('Saved DailyRate:', result); 
     res.status(201).json({
       kcal,
       notAllowedProducts: notAllowed,
     });
   } catch (error) {
     console.error(error);
+    console.error('Error in saveDailyRate:', error);
     res.status(500).json({ message: 'Something went wrong' });
   }
 };
 
 exports.getDay = async (req, res) => {
+  console.log('getDay called!')
   try {
     const { date } = req.params;
     const userId = req.user._id;
 
-    const day = await Day.findOne({ date, owner: userId }).populate('consumedProducts.product');
+    const day = await Day.findOne({ date, owner: userId });
     if (!day) {
       return res.json({
         consumedProducts: [],
@@ -54,8 +56,10 @@ exports.getDay = async (req, res) => {
       });
     }
 
-    // Find user daily rate (optional, if you want to use it)
+    await day.populate('consumedProducts.product');
+
     const userRate = await DailyRate.findOne({ user: userId });
+    console.log('userRate:', userRate);
     const dailyRate = userRate ? userRate.kcal : 0;
 
     const totalKcal = day.consumedProducts.reduce((total, item) => {
@@ -81,6 +85,7 @@ exports.getDay = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 
@@ -143,9 +148,11 @@ exports.removeConsumedProduct = async (req, res) => {
     if (!day) return res.status(404).json({ message: 'Day not found' });
 
     day.consumedProducts = day.consumedProducts.filter(
-      (item) => item.product._id.toString() !== productId
-    );
+      (item) => item._id.toString() !== productId
+    );    
     await day.save();
+    await day.populate('consumedProducts.product');
+
 
     // Get daily rate from DB
     const userRate = await DailyRate.findOne({ user: userId });
