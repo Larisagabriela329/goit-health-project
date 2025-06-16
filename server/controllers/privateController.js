@@ -37,12 +37,19 @@ exports.saveDailyRate = async (req, res) => {
 };
 
 exports.getDay = async (req, res) => {
-  console.log('getDay called!')
+  console.log('getDay called!');
   try {
     const { date } = req.params;
     const userId = req.user._id;
 
-    const day = await Day.findOne({ date, owner: userId });
+    const [day, userRate] = await Promise.all([
+      Day.findOne({ date, owner: userId }).populate('consumedProducts.product'),
+      DailyRate.findOne({ user: userId }),
+    ]);
+
+    const notAllowedProducts = userRate?.notAllowedProducts ?? [];
+    const dailyRate = userRate?.kcal ?? 0;
+
     if (!day) {
       return res.json({
         consumedProducts: [],
@@ -50,24 +57,21 @@ exports.getDay = async (req, res) => {
           date,
           kcalLeft: 0,
           kcalConsumed: 0,
-          dailyRate: 0,
+          dailyRate,
           percentsOfDailyRate: 0,
-        }
+        },
+        notAllowedProducts,
       });
     }
 
-    await day.populate('consumedProducts.product');
-
-    const userRate = await DailyRate.findOne({ user: userId });
-    console.log('userRate:', userRate);
-    const dailyRate = userRate ? userRate.kcal : 0;
-
     const totalKcal = day.consumedProducts.reduce((total, item) => {
-      if (!item.product || typeof item.product.kcal !== 'number' || typeof item.weight !== 'number') return total;
-      return total + (item.weight / 100) * item.product.kcal;
+      if (!item.product || typeof item.product.calories !== 'number' || typeof item.weight !== 'number') {
+        return total;
+      }
+      return total + (item.weight / 100) * item.product.calories;
     }, 0);
 
-    const kcalLeft = dailyRate > 0 ? Math.max(dailyRate - totalKcal, 0) : 0;
+    const kcalLeft = Math.max(dailyRate - totalKcal, 0);
     const percentsOfDailyRate = dailyRate > 0 ? Math.round((totalKcal / dailyRate) * 100) : 0;
 
     res.json({
@@ -78,7 +82,8 @@ exports.getDay = async (req, res) => {
         kcalConsumed: Math.round(totalKcal),
         dailyRate,
         percentsOfDailyRate,
-      }
+      },
+      notAllowedProducts,
     });
   } catch (error) {
     console.error("Error fetching day data:", error);
@@ -87,34 +92,39 @@ exports.getDay = async (req, res) => {
 };
 
 
-
-
 exports.addConsumedProduct = async (req, res) => {
   try {
     const { date } = req.params;
     const { productId, weight } = req.body;
     const userId = req.user._id;
 
+    console.log(`➡️ addConsumedProduct called for user ${userId}, date: ${date}, productId: ${productId}, weight: ${weight}`);
+
     let day = await Day.findOne({ date, owner: userId });
     if (!day) {
       day = await Day.create({ date, owner: userId, consumedProducts: [] });
+      console.log('🆕 Created new day entry');
     }
 
     day.consumedProducts.push({ product: productId, weight });
     await day.save();
+    console.log('✅ Product added to day and saved');
 
-    // Populate product details
-    await day.populate('consumedProducts.product');
+    // Re-fetch with populated products
+    day = await Day.findOne({ date, owner: userId }).populate('consumedProducts.product');
+    console.log('🔁 Re-fetched populated day:', JSON.stringify(day.consumedProducts, null, 2));
 
-    // Get daily rate from DB
     const userRate = await DailyRate.findOne({ user: userId });
     const dailyRate = userRate ? userRate.kcal : 0;
+    console.log('📊 User daily rate:', dailyRate);
 
-    // Calculate total kcal
     const totalKcal = day.consumedProducts.reduce((total, item) => {
-      if (!item.product || typeof item.product.kcal !== 'number' || typeof item.weight !== 'number') return total;
-      return total + (item.weight / 100) * item.product.kcal;
+      console.log('➡️ Calculating for:', item.product?.title, '| calories:', item.product?.calories, '| weight:', item.weight);
+      if (!item.product || typeof item.product.calories !== 'number' || typeof item.weight !== 'number') return total;
+      return total + (item.weight / 100) * item.product.calories;
     }, 0);
+
+    console.log('🔥 Total kcal consumed:', totalKcal);
 
     const kcalLeft = dailyRate > 0 ? Math.max(dailyRate - totalKcal, 0) : 0;
     const percentsOfDailyRate = dailyRate > 0 ? Math.round((totalKcal / dailyRate) * 100) : 0;
@@ -129,10 +139,12 @@ exports.addConsumedProduct = async (req, res) => {
         kcalConsumed: Math.round(totalKcal),
         dailyRate,
         percentsOfDailyRate,
-      }
+      },
+      notAllowedProducts: userRate?.notAllowedProducts ?? [], 
     });
+    
   } catch (error) {
-    console.error("Error adding consumed product:", error);
+    console.error("❌ Error adding consumed product:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -160,8 +172,8 @@ exports.removeConsumedProduct = async (req, res) => {
 
     // Recalculate total kcal
     const totalKcal = day.consumedProducts.reduce((total, item) => {
-      if (!item.product || typeof item.product.kcal !== 'number' || typeof item.weight !== 'number') return total;
-      return total + (item.weight / 100) * item.product.kcal;
+      if (!item.product || typeof item.product.calories !== 'number' || typeof item.weight !== 'number') return total;
+      return total + (item.weight / 100) * item.product.calories;
     }, 0);
 
     const kcalLeft = dailyRate > 0 ? Math.max(dailyRate - totalKcal, 0) : 0;
@@ -175,8 +187,10 @@ exports.removeConsumedProduct = async (req, res) => {
         kcalConsumed: Math.round(totalKcal),
         dailyRate,
         percentsOfDailyRate,
-      }
+      },
+      notAllowedProducts: userRate?.notAllowedProducts ?? [], 
     });
+    
   } catch (error) {
     console.error("Error removing consumed product:", error);
     res.status(500).json({ message: "Internal server error" });

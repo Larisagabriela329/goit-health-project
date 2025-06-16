@@ -5,6 +5,7 @@ const initialState = {
   id: null,
   eatenProducts: [],
   date: '',
+  notAllowedProducts: [],
   daySummary: {
     kcalLeft: 0,
     kcalConsumed: 0,
@@ -29,11 +30,11 @@ export const daySlice = createSlice({
       state.eatenProducts = action.payload.eatenProducts;
     })
     .addCase(dayInfo.fulfilled, (state, action) => {
-      state.id = action.payload.id;
-      state.eatenProducts = action.payload.eatenProducts;
-      state.date = action.payload.date;
-      state.daySummary = action.payload.daySummary;
-    });    
+      state.notAllowedProducts = Array.isArray(action.payload?.notAllowedProducts)
+        ? action.payload.notAllowedProducts
+        : [];
+    });
+    
   },
 });
 

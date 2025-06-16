@@ -18,13 +18,29 @@ import { getIsLoggedIn } from '../../../redux/auth/auth-selectors';
 import { toggleModal } from '../../../redux/modal/modal-reducer';
 import { getIsModalOpen } from '../../../redux/modal/modal-selectors';
 import { getCalcData } from '../../../redux/calculator/calculator-selectors';
+import { getNotAllowedProducts } from '../../../redux/day/day-selectors';
+import { getDailyRate } from '../../../redux/auth/auth-selectors'
 
 function Recommendations() {
   const isLoggedIn = useSelector(getIsLoggedIn);
   const isModalOpen = useSelector(getIsModalOpen);
-  const products = useSelector(getCalcData);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // Data for logged in users
+  const restrictedDay = useSelector(getNotAllowedProducts);
+  const rateDay = useSelector(getDailyRate);
+
+  // Data for not logged in users
+  const calcData = useSelector(getCalcData);
+
+  const notAllowedProducts = isLoggedIn
+    ? restrictedDay
+    : calcData.notAllowedProducts || [];
+
+  const calories = isLoggedIn
+    ? rateDay
+    : Math.trunc(calcData.dailyCalories || 0);
 
   const handleStartLoseWeight = () => {
     dispatch(toggleModal(!isModalOpen));
@@ -40,7 +56,7 @@ function Recommendations() {
 
       <CaloriesWrapper>
         <Calories>
-          {products?.dailyCalories ? Math.trunc(products.dailyCalories) : 0}
+          {calories}
           <Kkal>kcal</Kkal>
         </Calories>
       </CaloriesWrapper>
@@ -48,11 +64,11 @@ function Recommendations() {
       <Recommend>
         <Caption>Foods you should not eat</Caption>
         <ProductsList>
-          {products?.notAllowedProducts?.length ? (
-            products.notAllowedProducts.map((product, idx) => (
+          {notAllowedProducts?.length ? (
+            notAllowedProducts.map((product, idx) => (
               <ProductItem key={nanoid()}>
                 <Product>
-                  {idx + 1}. {product.title}
+                  {idx + 1}. {typeof product === 'string' ? product : product.title}
                 </Product>
               </ProductItem>
             ))

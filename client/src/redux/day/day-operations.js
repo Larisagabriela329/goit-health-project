@@ -43,7 +43,7 @@ export const dayInfo = createAsyncThunk(
     try {
       const res = await instance.get(`/api/private/day/${body.date}`);
       const data = res.data;
-      console.log("Thunk dayInfo result", data)
+
       return {
         id: null,
         eatenProducts: data.consumedProducts || [],
@@ -54,7 +54,8 @@ export const dayInfo = createAsyncThunk(
           kcalConsumed: 0,
           dailyRate: 0,
           percentsOfDailyRate: 0,
-        }
+        },
+        notAllowedProducts: data.notAllowedProducts || [], 
       };
     } catch (error) {
       return rejectWithValue(error.message);

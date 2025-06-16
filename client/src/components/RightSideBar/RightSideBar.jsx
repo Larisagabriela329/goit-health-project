@@ -13,7 +13,7 @@ import {
 } from './RightSideBar.styled';
 import { useSelector } from 'react-redux';
 import { getDaySummary } from '../../redux/day/day-selectors';
-import { getNotAllowedProducts } from '../../redux/auth/auth-selectors';
+import { getNotAllowedProducts } from '../../redux/day/day-selectors';
 import { nanoid } from 'nanoid';
 
 const RightSideBar = () => {
@@ -69,21 +69,22 @@ const RightSideBar = () => {
         </Container>
       </BoxList>
       <BoxList>
-        <ListTitle>Food not recommended</ListTitle>
-        {daySummary?.dailyRate > 0 ? (
-          <List>
-            {notAllowedProducts.map((product, idx) => (
-              <Item key={nanoid()}>
-                {idx + 1}. {product}
-              </Item>
-            ))}
-          </List>
-        ) : (
-          <PreContent> Your diet will be displayed here </PreContent>
-        )}
+      <ListTitle>Food not recommended</ListTitle>
+{notAllowedProducts.length > 0 ? (
+  <List>
+    {notAllowedProducts.map((product, idx) => (
+      <Item key={nanoid()}>
+        {idx + 1}. {product}
+      </Item>
+    ))}
+  </List>
+) : (
+  <PreContent>No restricted products found</PreContent>
+)}
       </BoxList>
     </Box>
   );
 };
 
 export default RightSideBar;
+
