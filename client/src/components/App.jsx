@@ -12,13 +12,13 @@ import { useAuth } from '../hooks';
 import { dayInfo } from '../redux/day/day-operations';
 import { GlobalStylesPrivate } from './styles/GlobalStylePrivate.styled';
 import { GlobalStylePublic } from './GlobalStylePublic/GlobalStylePublic.styled';
-import Loader from './Loader/Loader'; // if in same folder
+import Loader from './Loader/Loader'; 
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Home from '../pages/Home';
 import Calculator from '../pages/Calculator';
 import Diary from '../pages/Diary';
-import PageNotFound from './PageNotFound/PageNotFound'; // if in same folder
+import PageNotFound from './PageNotFound/PageNotFound'; 
 import { selectIsLoading } from '../redux/loader/loader-selectors';
 import { setToken } from 'config';
 

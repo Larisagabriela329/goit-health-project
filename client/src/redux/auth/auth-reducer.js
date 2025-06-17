@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
+  register,
   logIn,
   logOut,
   refreshUser,
@@ -22,6 +23,13 @@ export const authSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
+    .addCase(register.fulfilled, (state, action) => {
+      const { accessToken, refreshToken, user } = action.payload;
+      state.accessToken = accessToken;
+      state.refreshToken = refreshToken;
+      state.user = user;
+      state.isLoggedIn = true;
+    })
       .addCase(logIn.fulfilled, (state, action) => {
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
@@ -50,8 +58,12 @@ export const authSlice = createSlice({
         state.isRefreshing = false;
       })
       .addCase(dailyRate.fulfilled, (state, action) => {
+        if (!state.user.userData) {
+          state.user.userData = {}; 
+        }
         state.user.userData.dailyRate = action.payload.dailyRate;
         state.user.userData.notAllowedProducts = action.payload.notAllowedProducts;
       });
+      
   },
 });

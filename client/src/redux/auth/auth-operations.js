@@ -7,29 +7,18 @@ export const register = createAsyncThunk(
   async (body, { rejectWithValue }) => {
     try {
       const user = await instance.post('/api/auth/register', body);
-      const normalizedData = {
-        ...user.data,
-        user: {
-          ...user.data.user,
-          userData: {
-            ...user.data.user.userData,
-            dailyRate: user.data.user.userData.dailyCalories,
-          },
-        },
-      };
-      
-      return normalizedData;
-
+      return user.data; 
     } catch (error) {
       toast.warn(
-        error.response.status === 409
+        error?.response?.status === 409
           ? 'Provided email already exists'
-          : 'Bad request'
+          : 'Something went wrong. Please try again.'
       );
       return rejectWithValue(error.message);
     }
   }
 );
+
 
 export const logIn = createAsyncThunk(
   'auth/login',

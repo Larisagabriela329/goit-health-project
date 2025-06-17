@@ -61,22 +61,27 @@ function CalculatorCalorieForm() {
       bloodType: Number(values.bloodType),
     };
 
-  
-
     dispatch(dailyRate(body))
       .unwrap()
       .then((res) => {
-       
         if (userData) {
           dispatch(getUser());
         }
-        dispatch(calcData({ ...body, dailyCalories: res.dailyCalories, notAllowedProducts: res.notAllowedProducts }));
-        dispatch(toggleModal(true));
+
+        dispatch(calcData({
+          ...body,
+          dailyCalories: res.dailyCalories,
+          notAllowedProducts: res.notAllowedProducts,
+        }));
+
+        setTimeout(() => {
+          dispatch(toggleModal(true));
+        }, 100);
       })
       .catch((error) => {
         console.error('❌ Error in handleSubmit:', error);
       });
-  };
+  }; 
 
   return (
     <StyledWrapCaloriesCalc>

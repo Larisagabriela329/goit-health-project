@@ -16,7 +16,7 @@ import { getIsModalOpen } from '../../redux/modal/modal-selectors';
 import { getIsLoggedIn } from '../../redux/auth/auth-selectors';
 
 function UserInfo() {
-  const { username } = useSelector(getUser);
+  const { username } = useSelector(getUser) ?? {};
   const isModalOpen = useSelector(getIsModalOpen);
   const isLoggedIn = useSelector(getIsLoggedIn);
   const dispatch = useDispatch();
