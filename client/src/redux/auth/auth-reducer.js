@@ -58,12 +58,19 @@ export const authSlice = createSlice({
         state.isRefreshing = false;
       })
       .addCase(dailyRate.fulfilled, (state, action) => {
-        if (!state.user.userData) {
-          state.user.userData = {}; 
+
+        if (!state.user) {
+          state.user = {};
         }
+      
+        if (!state.user.userData) {
+          state.user.userData = {};
+        }
+      
         state.user.userData.dailyRate = action.payload.dailyRate;
         state.user.userData.notAllowedProducts = action.payload.notAllowedProducts;
       });
+      
       
   },
 });

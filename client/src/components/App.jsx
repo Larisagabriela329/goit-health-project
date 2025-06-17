@@ -30,11 +30,18 @@ export const App = () => {
   const dispatch = useDispatch();
   const normalizedSelectedDate = new Date().toISOString().split('T')[0];
   useEffect(() => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return;
+  
     dispatch(refreshUser())
       .unwrap()
       .then(() => dispatch(getUser()))
-      .then(() => dispatch(dayInfo({ date: normalizedSelectedDate })));
+      .then(() => dispatch(dayInfo({ date: normalizedSelectedDate })))
+      .catch((err) => {
+        console.warn('🔁 Refresh failed:', err);
+      });
   }, [dispatch, normalizedSelectedDate]);
+  
 
   const isRefreshing = useSelector(getIsRefreshing);
 
